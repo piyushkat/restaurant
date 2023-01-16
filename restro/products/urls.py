@@ -1,4 +1,3 @@
-
 from django.urls import path
 from products.views import *
 
@@ -13,4 +12,6 @@ urlpatterns = [
     path('getallcategory', GetAllCategory.as_view(), name='getallcategory'),
     path('category/next/<int:LIMIT>', CategoryPaginatioNext.as_view(), name='categorypaginationnext'),
     path('category/previous/<int:LIMIT>', CategoryPaginationPrevious.as_view(), name='categorypaginationprev'),
+
+    path('filter/',FilterProduct.as_view(), name='prev'),
 ]

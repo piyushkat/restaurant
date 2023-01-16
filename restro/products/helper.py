@@ -1,9 +1,3 @@
-
-
-
-
-
-
 def pagination(OFFSET,LIMIT,counter):
     if LIMIT > 100:
         LIMIT = 100 
