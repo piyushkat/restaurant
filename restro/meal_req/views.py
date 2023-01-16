@@ -1,25 +1,16 @@
-from django.shortcuts import render
-import datetime
-import environ
 from rest_framework.response import Response
-from rest_framework import status
 from food.serializer import *
 from rest_framework.generics import GenericAPIView
 from food.renderers import UserRenderer
-from django.contrib.auth.hashers import check_password,make_password
 from rest_framework.permissions import IsAuthenticated
 from food.helper import *
-from django.core.mail import send_mail
-from django.contrib.auth import authenticate
-from django.utils import timezone
-from datetime import datetime, timedelta
 from meal_req.models import *
 from meal_req.serializer import *
 from collections import OrderedDict
 
 
 # Create your views here.
-class DeliveryProcess(GenericAPIView):
+class RequestForFood(GenericAPIView):
   serializer_class = RequestMedicineSerializer
   renderer_classes = [UserRenderer]
   def post(self,request):
@@ -27,7 +18,9 @@ class DeliveryProcess(GenericAPIView):
     :return: Request medicine by the user and find the nearest store.
     """
     try:
+    
       if not self.request.user.is_authenticated:
+        print(self.request.user.id)
         return Response({'msg':'user not found'})
       # Request medicine by the user to the request medicine table
       serializer = RequestMedicineSerializer(data=request.data)
@@ -63,7 +56,7 @@ class DeliveryProcess(GenericAPIView):
       return Response ({"status": "Already order placed"}, status=203)
 
 
-class MedicineOrderApporve(GenericAPIView):
+class FoodOrderApporve(GenericAPIView):
   serializer_class = RequestMedicineSerializer
   renderer_classes = [UserRenderer]
   def post(self,request,id):
@@ -99,6 +92,8 @@ def NextStore(self,request,id):
   """
   order = OrderStatus.objects.filter(id=id).values('store_info')
   owner = StoreInfo.objects.filter(id=order[0]['store_info']).values('owner')
+  print(order)
+  print(owner)
   if owner[0]['owner'] == self.request.user.id:    
     # Get the order that was refused by pharmacy
     order =OrderStatus.objects.filter(id=id).values()
@@ -127,7 +122,7 @@ def NextStore(self,request,id):
     # if the index is more than the stores available in database 
     if index+1>=len(list(dict1.values())):
       order = OrderStatus.objects.get(id=id)
-      order.status = 'not_found'
+      order.status = 'order_not_accepted'
       order.save()
       return  Response({"status": "Not available"},status=204)
     # get the next store available in the sorted dict
@@ -141,23 +136,7 @@ def NextStore(self,request,id):
     return res
 
 
-class PartiallyFoundMedicine(GenericAPIView):
-  serializer_class = RequestMedicineSerializer
-  renderer_classes = [UserRenderer]
-  def post(self,request,id):
-    if not self.request.user.is_authenticated:
-      return Response({"msg":"No user Found"})
-    if self.request.user.has_perm('firstapp.change_orderstatus'):
-      res = NextStore(self,request,id)
-      order = OrderStatus.objects.get(id=id)
-      order.status = "partially_found"
-      order.save()
-      serializer = OrderStatusSerializer(order)
-      return Response({"status": "success", "data": serializer.data}, status=200)
-    return Response({"status": "You are not Authorized"}, status=200)
-    
-
-class MedicineOrderDecline(GenericAPIView):
+class FoodOrderDecline(GenericAPIView):
   serializer_class = RequestMedicineSerializer
   renderer_classes = [UserRenderer]
   def post(self,request,id):
@@ -177,19 +156,21 @@ class MedicineOrderDecline(GenericAPIView):
     return Response({"status": "You are not authorized"}, status=203)
 
 
-class MedicineRequestPerStore(GenericAPIView):
+class FoodRequestPerStore(GenericAPIView):
   serializer_class = RequestMedicineSerializer
   renderer_classes = [UserRenderer]
   def get(self,request):
-    if self.request.user.is_authenticated:
-      # check the user is logged in or not.
-      StoreId = StoreInfo.objects.filter(owner=self.request.user.id).values('id')
-      # Get the store id of the user
-      orders_per_store = OrderStatus.objects.filter(store_info=StoreId[0]['id']).values('id','medicine')
-      # check the orders of all the stores
-      medicine_detail = RequestMedicine.objects.filter(id=orders_per_store[0]['medicine'])
-      # filter the medical details.
-      serializer = RequestMedicineSerializer(medicine_detail,many=True)
-      return Response({"status": "success", "data": serializer.data}, status=200)
-    return Response({"status": "Login Required"}, status=407)
-
+    try:
+      if self.request.user.is_authenticated:
+        # check the user is logged in or not.
+        StoreId = StoreInfo.objects.filter(owner=self.request.user.id).values('id')
+        # Get the store id of the user
+        orders_per_store = OrderStatus.objects.filter(store_info=StoreId[0]['id']).values('id','medicine')
+        # check the orders of all the stores
+        medicine_detail = RequestMedicine.objects.filter(id=orders_per_store[0]['medicine'])
+        # filter the medical details.
+        serializer = RequestMedicineSerializer(medicine_detail,many=True)
+        return Response({"status": "success", "data": serializer.data}, status=200)
+      return Response({"status": "Login Required"}, status=407)
+    except:
+      return Response({"status": "No order"}, status=203)

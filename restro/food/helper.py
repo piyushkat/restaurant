@@ -20,8 +20,7 @@ def Validate_Password(password):
         return False
     except:
         return Response({"msg": "Password is empty"})
-
-
+        
 
 def get_distance(x1,y1,x2,y2):
   """

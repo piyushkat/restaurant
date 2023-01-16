@@ -1,7 +1,8 @@
-from django.urls import path
-from food.views import *
+from django.urls import path,include
+from food.views import UserRegistrationView,VerifyOtpForEmailVerification,VerifyEmailSecondTime,UserLoginView,UpdateUserProfile,DeleteUserProfile,SendPasswordEmailView,UserChangePasswordView,UserPasswordResetView
 
 urlpatterns = [
+
     path('signup',UserRegistrationView.as_view(), name='signup'),
     path('verifyotp',VerifyOtpForEmailVerification.as_view(), name='verifyotp'),
     path('verifyemail',VerifyEmailSecondTime.as_view(), name='verifyemail'),

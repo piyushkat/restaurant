@@ -20,9 +20,3 @@ class StoreInfoSerializer(serializers.ModelSerializer):
   class Meta:
     model = StoreInfo
     fields = ['name','address','latitude','longitude','owner']
-
-
-class VerifyOtpSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ['user_id','auth_token']

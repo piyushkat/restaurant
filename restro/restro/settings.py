@@ -41,8 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'food',
     'products',
+    'meal_req',
+    'cart',
+    'review_rating',
     'rest_framework',
     'corsheaders',
     'drf_yasg',
@@ -50,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -205,11 +210,31 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+SITE_ID = 1
 
-SITE_ID = 3
 ACCOUNT_EMAIL_REQUIRED = True #new
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'api/auth/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+        'PAGE_SIZE': 2,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.AllowAny',
+],
+}
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.google.GoogleOAuth2',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]

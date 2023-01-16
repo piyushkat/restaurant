@@ -4,8 +4,10 @@ from food.renderers import UserRenderer
 from products.serializer import *
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView,ListAPIView
 from products.helper import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter,OrderingFilter
 # Create your views here.
 
 
@@ -125,3 +127,15 @@ class CategoryPaginationPrevious(GenericAPIView):
     res = Category.objects.all()[OFFSET:OFFSET+LIMIT]
     serializer =  CategorySerializer(res, many=True)
     return Response({"status": "success", "data": serializer.data}, status = 200)
+
+
+class FilterProduct(ListAPIView):
+  queryset = Product.objects.all()
+  serializer_class = ProductSerializer
+  filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
+  filterset_fields = ['id','name']
+  search_fields = ['id','^name']
+  ordering_fields = ['id','name','price']
+
+
+

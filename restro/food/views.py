@@ -12,13 +12,13 @@ from django.core.mail import send_mail
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from datetime import datetime, timedelta
-
+# import os
 
 # importing and cofigure dot env file
-env = environ.Env()
+env=environ.Env()
 environ.Env.read_env()
+# os.environ.get('EMAIL_FROM')
 EMAIL_FROM = env('EMAIL_FROM')
-
 
 # validation for unique user email
 def unique_email(email):
