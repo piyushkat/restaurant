@@ -1,12 +1,9 @@
 import datetime
+from cart.models import *
+from food.renderers import UserRenderer
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
-from food.renderers import UserRenderer
-from rest_framework.permissions import IsAuthenticated
 from cart.serializer import AddCartSerializer,ViewCartSerializer,DeleteCartSerializer
-from cart.models import *
-
-
 # Create your views here.
 
 
@@ -62,3 +59,8 @@ class DeleteCartItem(GenericAPIView):
     cart = Cartitems.objects.all().delete()
     serializer = DeleteCartSerializer(cart)
     return Response({"status": "success", "data": serializer.data}, status = 200)
+ 
+ 
+ 
+ 
+  

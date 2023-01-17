@@ -90,8 +90,6 @@ def NextStore(self,request,id):
   """
   order = OrderStatus.objects.filter(id=id).values('store_info')
   owner = StoreInfo.objects.filter(id=order[0]['store_info']).values('owner')
-  print(order)
-  print(owner)
   if owner[0]['owner'] == self.request.user.id:    
     # Get the order that was refused by pharmacy
     order =OrderStatus.objects.filter(id=id).values()
@@ -172,3 +170,40 @@ class FoodRequestPerStore(GenericAPIView):
       return Response({"status": "Login Required"}, status=407)
     except:
       return Response({"status": "Place any order"}, status=203)
+
+
+
+
+class DeliveryBoyOrderStatus(GenericAPIView):
+  serializer_class = OrderStatusSerializer
+  renderer_classes = [UserRenderer]
+  def post(self,request,id):
+    store = StoreInfo.objects.get(id=id)
+    order =OrderStatus.objects.filter(id=id).values()
+    medicine_value = RequestMedicine.objects.filter(id=order[0]['medicine_id']).values() # and user id
+    med_lat = medicine_value[0]['latitude']
+    med_lon = medicine_value[0]['longitude']
+    res = RequestMedicine.objects.all().values()
+    dict = {}
+    for i in range(len(res)):
+      store_lat = float(res[i]["latitude"])
+      store_lon = float(res[i]["longitude"])
+      distance = get_distance(med_lat,med_lon,store_lat,store_lon)
+      dict[distance] = res[i]
+    dict1 = OrderedDict(sorted(dict.items()))
+    print(dict1)
+    req_med = RequestMedicine.objects.filter(id=order[0]['medicine_id']).values()
+    print(req_med)
+    index = list(dict1.values()).index(req_med[0])
+    if index+1>=len(list(dict1.values())):
+      order = OrderStatus.objects.get(id=id)
+      order.status = 'delivered'
+      order.save()
+      return Response({'msg':"order delivered"},status=200)
+    next_med = list(dict1.values())[index+1]
+    res = RequestMedicine.objects.get(id=next_med['id'])
+    order = OrderStatus.objects.get(id=id)
+    order.medicine = res
+    order.save()
+    serializer = OrderStatusSerializer(order)
+    return Response({'msg':"order delivered","data": serializer.data},status=200)
