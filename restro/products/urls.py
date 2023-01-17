@@ -3,7 +3,7 @@ from products.views import *
 
 urlpatterns = [
  
-    path('getallproduct', GetAllProduct.as_view(), name='getallproduct'),
+    path('getallproduct/', GetAllProduct.as_view(), name='getallproduct'),
     path('getproductbyid/<int:id>', GetProductById.as_view(), name='getproductbyid'),
     path('product/next/<int:LIMIT>', ProductPaginatioNext.as_view(), name='productpaginationnext'),
     path('product/previous/<int:LIMIT>', ProductPaginationPrevious.as_view(), name='productpaginationprev'),

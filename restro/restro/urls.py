@@ -23,5 +23,4 @@ urlpatterns = [
     path('api/order/', include('meal_req.urls')),
     path('api/stars/', include('review_rating.urls')),
     path('accounts/', include('allauth.urls')),
-
 ]

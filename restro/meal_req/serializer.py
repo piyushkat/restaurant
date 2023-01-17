@@ -4,10 +4,10 @@ from food.models import *
 
 
 class RequestMedicineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RequestMedicine
-        fields = ('name', 'image', 'phone_no', 'address',
-                   'latitude', 'longitude', 'user')
+  class Meta:
+    model = RequestMedicine
+    fields = ('name', 'image', 'phone_no', 'address',
+    'latitude', 'longitude', 'user')
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):

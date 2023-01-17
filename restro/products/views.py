@@ -1,13 +1,11 @@
-from django.shortcuts import render
 from products.models import *
-from food.renderers import UserRenderer
-from products.serializer import *
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.generics import GenericAPIView,ListAPIView
 from products.helper import *
+from products.serializer import *
+from food.renderers import UserRenderer
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
+from rest_framework.generics import GenericAPIView,ListAPIView
 # Create your views here.
 
 
@@ -85,6 +83,7 @@ class GetProductByCategory(GenericAPIView):
     except:
       return Response({"status": "Not Found"}, status = 400)
 
+
 class GetAllCategory(GenericAPIView):
   """
   :return: Get all the category from the category table.
@@ -133,9 +132,18 @@ class FilterProduct(ListAPIView):
   queryset = Product.objects.all()
   serializer_class = ProductSerializer
   filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
-  filterset_fields = ['id','name']
-  search_fields = ['id','^name']
-  ordering_fields = ['id','name','price']
+  filterset_fields = ['name']
+  search_fields = ['^name']
+  ordering_fields = ['name','price']
+
+
+class FilterCategory(ListAPIView):
+  queryset = Category.objects.all()
+  serializer_class = CategorySerializer
+  filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
+  filterset_fields = ['name']
+  search_fields = ['^name']
+  ordering_fields = ['name']
 
 
 
