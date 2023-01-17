@@ -248,6 +248,6 @@ class DeleteUserProfile(GenericAPIView):
     try:
       user = User.objects.get(id=id) 
       user.delete()
-      return Response({"Msg":"User Deleted Successfully"},status=200)
+      return Response({"status":"User Deleted Successfully"},status=200)
     except:
       return Response({"status":"User Not Found"}, status = 400)
