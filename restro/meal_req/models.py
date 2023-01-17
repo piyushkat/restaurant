@@ -25,7 +25,7 @@ class StoreInfo(models.Model):
 status = (
     ("waiting_for_confirmation","waiting_for_confirmation"),
     ("partially_found","partially_found"),
-    ("not_accepted_order","not_accepted_order"),
+    ("order_not_accepted","order_not_accepted"),
     ("order_accepted","order_accepted"),
     ("order_packed","order_packed"),  
     ("order_picked","order_picked"),

@@ -18,9 +18,7 @@ class RequestForFood(GenericAPIView):
     :return: Request medicine by the user and find the nearest store.
     """
     try:
-    
       if not self.request.user.is_authenticated:
-        print(self.request.user.id)
         return Response({'msg':'user not found'})
       # Request medicine by the user to the request medicine table
       serializer = RequestMedicineSerializer(data=request.data)
@@ -67,7 +65,7 @@ class FoodOrderApporve(GenericAPIView):
       if not self.request.user.is_authenticated:
         return Response({"msg":"No user Found"})
         # Request the user to have permission to change the order status.
-      if self.request.user.has_perm('firstapp.change_orderstatus'):
+      if self.request.user.has_perm('meal_req.change_orderstatus'):
         # Get the order id in the order status table.
         order = OrderStatus.objects.filter(id=id).values('store_info')
         owner = StoreInfo.objects.filter(id=order[0]['store_info']).values('owner')
@@ -146,7 +144,7 @@ class FoodOrderDecline(GenericAPIView):
     if not self.request.user.is_authenticated:
       # chck the user is authenticated or not.
       return Response({"msg":"No user Found"})
-    if self.request.user.has_perm('firstapp.change_orderstatus'):
+    if self.request.user.has_perm('meal_req.change_orderstatus'):
       # check if the user has parameter to decline the order
       res = NextStore(self,request,id)
         # converted the data into json format
@@ -173,4 +171,4 @@ class FoodRequestPerStore(GenericAPIView):
         return Response({"status": "success", "data": serializer.data}, status=200)
       return Response({"status": "Login Required"}, status=407)
     except:
-      return Response({"status": "No order"}, status=203)
+      return Response({"status": "Place any order"}, status=203)
