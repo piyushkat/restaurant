@@ -40,3 +40,14 @@ class OrderStatus(models.Model):
     store_info = models.ForeignKey(StoreInfo,on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)  
     status = models.CharField(max_length=100,choices=status,default="waiting_for_confirmation")
+
+
+class DeliveryBoy(models.Model):
+    user =  models.ForeignKey(User,on_delete=models.CASCADE)
+    order = models.ForeignKey(RequestMedicine,on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now=True)
+
+
+class StoreSortedLocation(models.Model):
+    sort = models.ForeignKey(RequestMedicine,on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now=True)
