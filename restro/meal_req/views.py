@@ -255,7 +255,6 @@ class DeliveryBoyGet(GenericAPIView):
     # sorted the dictionary according to distance(key in dict)
     dict1 = OrderedDict(sorted(dict.items()))
     sorted_items = (dict1.values())
-    print(sorted_items)
     # convert data into json format
     serializer = RequestMedicineSerializer(sorted_items,many=True)
     return Response({"status": "success", "data": serializer.data}, status= 200)
