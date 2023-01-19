@@ -6,8 +6,8 @@ from food.models import *
 class RequestMedicineSerializer(serializers.ModelSerializer):
   class Meta:
     model = RequestMedicine
-    fields = ('name', 'image', 'phone_no', 'address',
-    'latitude', 'longitude', 'user')
+    fields = ['id','name', 'image', 'phone_no', 'address',
+    'latitude', 'longitude']
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
@@ -20,3 +20,18 @@ class StoreInfoSerializer(serializers.ModelSerializer):
   class Meta:
     model = StoreInfo
     fields = ['name','address','latitude','longitude','owner']
+
+
+class DeliveryBoySerializer(serializers.ModelSerializer):
+  medicine = RequestMedicineSerializer(read_only = True)
+  class Meta:
+    model = DeliveryBoy
+    fields = ['user','order','date','medicine']
+
+
+class SortLocationSerializer(serializers.ModelSerializer):
+  sort_loc = RequestMedicineSerializer(read_only = True)
+  class Meta:
+    model = StoreSortedLocation
+    fields = ['sort','date','name', 'image', 'phone_no', 'address',
+    'latitude', 'longitude', 'user']

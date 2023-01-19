@@ -6,5 +6,8 @@ urlpatterns = [
      path('orderapprove/<int:id>', FoodOrderApporve.as_view(), name='orderapprove'),
      path('orderdecline/<int:id>', FoodOrderDecline.as_view(), name='orderdecline'),
      path('orderperstore/', FoodRequestPerStore.as_view(), name='orderperstore'),
+     path('deliver/<int:id>', OrderAssignToDeliveryBoy.as_view(), name='orderperstore'),
+     path('deliverget/<int:id>', OrderAssignGet.as_view(), name='orderperstore'),
      path('deliveryboy/<int:id>', DeliveryBoyOrderStatus.as_view(), name='orderperstore'),
+     path('deliveryboys', DeliveryBoyGet.as_view(), name='orderperstore'),
 ]
