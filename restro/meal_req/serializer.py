@@ -27,11 +27,3 @@ class DeliveryBoySerializer(serializers.ModelSerializer):
   class Meta:
     model = DeliveryBoy
     fields = ['user','order','date','medicine']
-
-
-class SortLocationSerializer(serializers.ModelSerializer):
-  sort_loc = RequestMedicineSerializer(read_only = True)
-  class Meta:
-    model = StoreSortedLocation
-    fields = ['sort','date','name', 'image', 'phone_no', 'address',
-    'latitude', 'longitude', 'user']

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from meal_req.models import RequestMedicine,StoreInfo,OrderStatus,DeliveryBoy,StoreSortedLocation
+from meal_req.models import RequestMedicine,StoreInfo,OrderStatus,DeliveryBoy
 
 # Register your models here.
 
@@ -21,8 +21,3 @@ admin.site.register(StoreInfo, StoreInfoAdmin)
 class DeliveryBoyAdmin(admin.ModelAdmin):
     list_display = ('user','order','date')
 admin.site.register(DeliveryBoy,DeliveryBoyAdmin)
-
-
-class StoreSortedDataAdmin(admin.ModelAdmin):
-    list_display = ('sort',)
-admin.site.register(StoreSortedLocation,StoreSortedDataAdmin)
