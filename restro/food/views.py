@@ -12,6 +12,11 @@ from django.core.mail import send_mail
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from datetime import datetime, timedelta
+
+
+from google.oauth2.credentials import Credentials
+from rest_framework.response import Response
+from rest_framework.views import APIView
 # import os
 
 # importing and cofigure dot env file
@@ -251,3 +256,16 @@ class DeleteUserProfile(GenericAPIView):
       return Response({"status":"User Deleted Successfully"},status=200)
     except:
       return Response({"status":"User Not Found"}, status = 400)
+
+
+
+
+
+
+class GoogleAuthView(APIView):
+    def post(self, request):
+        client_id = request.data.get('client_id')
+        client_secret = request.data.get('client_secret')
+        credentials = Credentials.from_authorized_user_info(info=request.data, client_id=client_id, client_secret=client_secret)
+        token = credentials.token
+        return Response({'token': token})

@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from food.helper import *
 from meal_req.models import *
 from meal_req.serializer import *
-import datetime
 from collections import OrderedDict
 
 
@@ -153,24 +152,24 @@ class FoodOrderDecline(GenericAPIView):
     return Response({"status": "You are not authorized"}, status=203)
 
 
-class FoodRequestPerStore(GenericAPIView):
-  serializer_class = RequestMedicineSerializer
-  renderer_classes = [UserRenderer]
-  def get(self,request):
-    try:
-      if self.request.user.is_authenticated:
-        # check the user is logged in or not.
-        StoreId = StoreInfo.objects.filter(owner=self.request.user.id).values('id')
-        # Get the store id of the user
-        orders_per_store = OrderStatus.objects.filter(store_info=StoreId[0]['id']).values('id','medicine')
-        # check the orders of all the stores
-        medicine_detail = RequestMedicine.objects.filter(id=orders_per_store[0]['medicine'])
-        # filter the medical details.
-        serializer = RequestMedicineSerializer(medicine_detail,many=True)
-        return Response({"status": "success", "data": serializer.data}, status=200)
-      return Response({"status": "Login Required"}, status=407)
-    except:
-      return Response({"status": "Place any order"}, status=203)
+# class FoodRequestPerStore(GenericAPIView):
+#   serializer_class = RequestMedicineSerializer
+#   renderer_classes = [UserRenderer]
+#   def get(self,request):
+#     try:
+#       if self.request.user.is_authenticated:
+#         # check the user is logged in or not.
+#         StoreId = StoreInfo.objects.filter(owner=self.request.user.id).values('id')
+#         # Get the store id of the user
+#         orders_per_store = OrderStatus.objects.filter(store_info=StoreId[0]['id']).values('id','medicine')
+#         # check the orders of all the stores
+#         medicine_detail = RequestMedicine.objects.filter(id=orders_per_store[0]['medicine'])
+#         # filter the medical details.
+#         serializer = RequestMedicineSerializer(medicine_detail,many=True)
+#         return Response({"status": "success", "data": serializer.data}, status=200)
+#       return Response({"status": "Login Required"}, status=407)
+#     except:
+#       return Response({"status": "Place any order"}, status=203)
 
 
 class OrderAssignToDeliveryBoy(GenericAPIView):
@@ -178,6 +177,8 @@ class OrderAssignToDeliveryBoy(GenericAPIView):
   renderer_classes = [UserRenderer]
   def post(self,request,id):
     try:
+      if not self.request.user.is_authenticated:
+        return Response({'msg':'user not found'})
       user = User.objects.get(id=id)
       order = RequestMedicine.objects.get(id=request.data.get('order'))
       delivery = DeliveryBoy.objects.create(user=user,order=order)
@@ -193,6 +194,8 @@ class OrderAssignGet(GenericAPIView):
   renderer_classes = [UserRenderer]
   def get(self,request,id):
     try:
+      if not self.request.user.is_authenticated:
+        return Response({'msg':'user not found'})
       user = User.objects.get(id=id)
       delivery = DeliveryBoy.objects.filter(user=user)
       serializer = DeliveryBoySerializer(delivery,many=True)
@@ -208,6 +211,8 @@ class DeliveryBoyOrderStatus(GenericAPIView):
   renderer_classes = [UserRenderer]
   def post(self,request,id):
     try:
+      if not self.request.user.is_authenticated:
+        return Response({'msg':'user not found'})
       order =OrderStatus.objects.filter(id=id).values()
       medicine_value = RequestMedicine.objects.filter(id=order[0]['medicine_id']).values() # and user id
       med_lat = medicine_value[0]['latitude']
@@ -233,68 +238,36 @@ class DeliveryBoyOrderStatus(GenericAPIView):
       return Response({'msg':"Order Not Found"},status=400)
 
 
-class DeliveryBoyGet(GenericAPIView):  
+class DeliveryBoyOrderGet(GenericAPIView):  
   renderer_classes = [UserRenderer]
   def get(self,request):
-    order = OrderStatus.objects.all().values()
-    medicine_value = RequestMedicine.objects.filter(id=order[0]['medicine_id']).values() # and user id
-    # getting the latitude and longitude of user location
-    start1 = medicine_value[0]['latitude']
-    start2 = medicine_value[0]['longitude']
-    # get all the stores from database(for poc only,afterwards will filter within the radius of user
-    res = RequestMedicine.objects.all().values()
-    dict = {}
-    for i in range(len(res)):
-      # distance of store from the user in km 
-      end1 = float(res[i]["latitude"])
-      end2 = float(res[i]["longitude"])
-      distance = get_distance(start1,start2,end1,end2)
-      # stored  the distance of the user in a dictionary 
-      # with key as distance and value as store to which distance is calculated
-      dict[distance] = res[i]
-    # sorted the dictionary according to distance(key in dict)
-    dict1 = OrderedDict(sorted(dict.items()))
-    sorted_items = (dict1.values())
-    # convert data into json format
-    serializer = RequestMedicineSerializer(sorted_items,many=True)
-    return Response({"status": "success", "data": serializer.data}, status= 200)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    try:
+      if not self.request.user.is_authenticated:
+        return Response({'msg':'user not found'})
+      order = OrderStatus.objects.all().values()
+      medicine_value = RequestMedicine.objects.filter(id=order[0]['medicine_id']).values() # and user id
+      # getting the latitude and longitude of user location
+      start1 = medicine_value[0]['latitude']
+      start2 = medicine_value[0]['longitude']
+      # get all the stores from database(for poc only,afterwards will filter within the radius of user
+      res = RequestMedicine.objects.all().values()
+      dict = {}
+      for i in range(len(res)):
+        # distance of store from the user in km 
+        end1 = float(res[i]["latitude"])
+        end2 = float(res[i]["longitude"])
+        distance = get_distance(start1,start2,end1,end2)
+        # stored  the distance of the user in a dictionary 
+        # with key as distance and value as store to which distance is calculated
+        dict[distance] = res[i]
+      # sorted the dictionary according to distance(key in dict)
+      dict1 = OrderedDict(sorted(dict.items()))
+      sorted_items = (dict1.values())
+      # convert data into json format
+      serializer = RequestMedicineSerializer(sorted_items,many=True)
+      return Response({"status": "success", "data": serializer.data}, status= 200)
+    except:
+      return Response({"msg":"Order not found"})
 
 
 
