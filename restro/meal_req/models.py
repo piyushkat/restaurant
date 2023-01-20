@@ -46,3 +46,6 @@ class DeliveryBoy(models.Model):
     user =  models.ForeignKey(User,on_delete=models.CASCADE)
     order = models.ForeignKey(RequestMedicine,on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)
+
+
+

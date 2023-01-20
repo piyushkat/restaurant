@@ -1,5 +1,5 @@
 from django.urls import path,include
-from food.views import UserRegistrationView,VerifyOtpForEmailVerification,VerifyEmailSecondTime,UserLoginView,UpdateUserProfile,DeleteUserProfile,SendPasswordEmailView,UserChangePasswordView,UserPasswordResetView
+from food.views import UserRegistrationView,VerifyOtpForEmailVerification,VerifyEmailSecondTime,UserLoginView,UpdateUserProfile,DeleteUserProfile,SendPasswordEmailView,UserChangePasswordView,UserPasswordResetView,GoogleAuthView
 
 urlpatterns = [
 
@@ -12,4 +12,8 @@ urlpatterns = [
     path('sendemailforpassword',SendPasswordEmailView.as_view(), name='sendemail'),
     path('changepassword',UserChangePasswordView.as_view(), name='changepassword'),
     path('resetpassword/<uid>/<token>',UserPasswordResetView.as_view(), name='resetpassword'),
+
+
+    path('google',GoogleAuthView.as_view(), name='google'),
+
 ]
