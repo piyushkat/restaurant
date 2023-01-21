@@ -10,9 +10,10 @@ from cart.serializer import AddCartSerializer,ViewCartSerializer,DeleteCartSeria
 class AddProductCart(GenericAPIView):
   serializer_class = AddCartSerializer
   renderer_classes = [UserRenderer]
-  # permission_classes = [IsAuthenticated]
   def post(self,request,id): 
     try:
+      if not self.request.user.is_authenticated:
+        return Response({'msg':'user not found'})
       user = User.objects.get(id=id)
       product = Product.objects.get(id=request.data['product_id'])
       quantity = int(request.data['quantity'])   
@@ -59,8 +60,3 @@ class DeleteCartItem(GenericAPIView):
     cart = Cartitems.objects.all().delete()
     serializer = DeleteCartSerializer(cart)
     return Response({"status": "success", "data": serializer.data}, status = 200)
- 
- 
- 
- 
-  

@@ -24,8 +24,8 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=1000)
     image = models.ImageField(upload_to='images/product')
-    prescribed = models.BooleanField(default=False)
-    severity = models.IntegerField(choices=severity_level, default=1)
+    # prescribed = models.BooleanField(default=False)
+    # severity = models.IntegerField(choices=severity_level, default=1)
     price = models.IntegerField(default=0)
     margin = models.IntegerField()
     price_before_disc = models.IntegerField(default=0)
@@ -64,3 +64,6 @@ class Product(models.Model):
             self.status = False
 
         super().save(*args, **kwargs)
+
+
+
