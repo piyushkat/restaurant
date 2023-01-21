@@ -13,6 +13,7 @@ class RequestMedicine(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)
 
+
 class StoreInfo(models.Model):
     name = models.CharField(max_length=255)
     address = models.TextField(max_length=500)
@@ -46,6 +47,3 @@ class DeliveryBoy(models.Model):
     user =  models.ForeignKey(User,on_delete=models.CASCADE)
     order = models.ForeignKey(RequestMedicine,on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)
-
-
-

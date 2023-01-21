@@ -7,6 +7,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
 from rest_framework.generics import GenericAPIView,ListAPIView
 # Create your views here.
+OFFSET = 0 # Give the OFFSET for the pagination
+LIMIT = 2 # Limit of the pagination.
 
 
 class GetAllProduct(GenericAPIView):
@@ -22,7 +24,7 @@ class GetAllProduct(GenericAPIView):
     return Response({"status": "success", "data": serializer.data}, status = 200)
 
 
-class GetProductById(GenericAPIView):
+class GetProductById(GenericAPIView): 
   serializer_class = ProductSerializer
   renderer_classes = [UserRenderer]
   def get(self, request, id=None):
@@ -144,6 +146,3 @@ class FilterCategory(ListAPIView):
   filterset_fields = ['name']
   search_fields = ['^name']
   ordering_fields = ['name']
-
-
-
