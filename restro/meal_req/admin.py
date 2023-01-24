@@ -4,12 +4,14 @@ from meal_req.models import RequestMedicine,StoreInfo,OrderStatus,DeliveryBoy
 # Register your models here.
 
 class RequestMedicineAdmin(admin.ModelAdmin):
-    list_display = ('name', 'image', 'phone_no', 'address','latitude', 'longitude', 'user', 'date')
+    fields = ['cart','phone_no', 'address','latitude', 'longitude', 'user']
+    list_display = ('id','phone_no', 'address','latitude', 'longitude', 'user', 'date')
 admin.site.register(RequestMedicine, RequestMedicineAdmin)
 
 
 class OrderStatusAdmin(admin.ModelAdmin):
-    list_display = ('medicine', 'store_info', 'date', 'status')
+    fields = ['cart','store_info','status']
+    list_display = ('store_info', 'date', 'status')
 admin.site.register(OrderStatus, OrderStatusAdmin)
 
 
@@ -19,5 +21,6 @@ admin.site.register(StoreInfo, StoreInfoAdmin)
 
 
 class DeliveryBoyAdmin(admin.ModelAdmin):
-    list_display = ('user','order','date')
+    fields= ['user','order']
+    list_display = ('user','date')
 admin.site.register(DeliveryBoy,DeliveryBoyAdmin)

@@ -7,53 +7,116 @@ from food.helper import get_distance
 from meal_req.models import *
 from meal_req.serializer import *
 from collections import OrderedDict
-import math
+import datetime
+from rest_framework.views import APIView
+
 
 
 # Create your views here.
-class RequestForFood(GenericAPIView):
+# class RequestForFood(GenericAPIView):
+#   serializer_class = RequestMedicineSerializer
+#   renderer_classes = [UserRenderer]
+#   def post(self,request):
+#     """
+#     :return: Request medicine by the user and find the nearest store.
+#     """
+#     try:
+#       if not self.request.user.is_authenticated:
+#         return Response({'msg':'user not found'})
+#       # Request medicine by the user to the request medicine table
+#       serializer = RequestMedicineSerializer(data=request.data)
+#       # if the json data is valid.
+#       serializer.is_valid(raise_exception=True)
+#       # update the table
+#       serializer.save()
+#       # Find the distance from user to the store  
+#       start_x = float(request.data.get('latitude'))
+#       start_y= float(request.data.get('longitude'))
+#       # get all the store info
+#       res = StoreInfo.objects.all().values()
+#       dict = {}
+#       for i in range(len(res)):
+#         # distance to the store from the User
+#         end_x = float(res[i]["latitude"])
+#         end_y = float(res[i]["longitude"])
+#         distance = get_distance(start_x,start_y,end_x,end_y)
+#         # stored  the distance of the user in a dictionary 
+#         # with key as distance and value as store to which distance is calculated
+#         dict[distance] = res[i]
+#       # sort the items in the order dict table 
+#       dict1 = OrderedDict(sorted(dict.items()))
+#       sorted_items=list(dict1.values())[0]
+#       # get the store info id
+#       store = StoreInfo.objects.get(id=sorted_items['id'])
+#       # create the order by the user to request the medicine byt he request medicine table
+#       order = OrderStatus.objects.create(medicine=RequestMedicine.objects.get(name=request.data.get('name')),store_info=store ) # validate name
+#       # convert data into json format
+#       serializer = OrderStatusSerializer(OrderStatus.objects.filter(store_info=store),many=True)
+#       return Response({"status": "success", "data": serializer.data}, status= 200)
+#     except:
+#       return Response ({"status": "Already order placed"}, status=203)
+
+
+class UserAddressDetail(APIView):
   serializer_class = RequestMedicineSerializer
   renderer_classes = [UserRenderer]
-  def post(self,request):
-    """
-    :return: Request medicine by the user and find the nearest store.
-    """
+  def post(self,request,id):
+    user = User.objects.get(id=id)
+    phone_no = request.data.get('phone_no')
+    address = request.data.get('address')
+    latitude = request.data.get('latitude')
+    longitude = request.data.get('longitude')
+    cart_item = Cartitems.objects.filter(user=user)
+    meal = RequestMedicine.objects.create(user=user,phone_no=phone_no,address=address,latitude=latitude,longitude=longitude,date=datetime.datetime.now)
+    meal.cart.set(cart_item)
+    meal.save()
+    store = StoreInfo.objects.get(id=id)
+    # create the order by the user to request the medicine by the request medicine table
+    order = OrderStatus.objects.create(store_info=  store) # validate name
+    order.cart = set(cart_item.values('id'))
+    # res = order.cart.set(int(res['id']))
+    serializer = OrderStatusSerializer(order,many=True)
+    return Response({"msg":"success","data":serializer.data})
+
+
+class UserAddressDetailUpdate(GenericAPIView):
+  serializer_class = RequestMedicineSerializer
+  renderer_classes = [UserRenderer]
+  def put(self,request,id):
+    user = User.objects.get(id=id)
+    order = RequestMedicine.objects.get(user=user)
+    serializer = UpdateUserDetailSerializer(order,data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response({"status":"success", "data": serializer.data}, status = 200)
+
+
+class ViewUserAddressDetail(GenericAPIView):
+  serializer_class = RequestMedicineSerializer
+  renderer_classes = [UserRenderer]
+  def get(self,request,id):
     try:
-      if not self.request.user.is_authenticated:
-        return Response({'msg':'user not found'})
-      # Request medicine by the user to the request medicine table
-      serializer = RequestMedicineSerializer(data=request.data)
-      # if the json data is valid.
-      serializer.is_valid(raise_exception=True)
-      # update the table
-      serializer.save()
-      # Find the distance from user to the store  
-      start_x = float(request.data.get('latitude'))
-      start_y= float(request.data.get('longitude'))
-      # get all the store info
-      res = StoreInfo.objects.all().values()
-      dict = {}
-      for i in range(len(res)):
-        # distance to the store from the User
-        end_x = float(res[i]["latitude"])
-        end_y = float(res[i]["longitude"])
-        distance = get_distance(start_x,start_y,end_x,end_y)
-        # stored  the distance of the user in a dictionary 
-        # with key as distance and value as store to which distance is calculated
-        dict[distance] = res[i]
-      # sort the items in the order dict table 
-      dict1 = OrderedDict(sorted(dict.items()))
-      sorted_items=list(dict1.values())[0]
-      # get the store info id
-      store = StoreInfo.objects.get(id=sorted_items['id'])
-      # create the order by the user to request the medicine byt he request medicine table
-      order = OrderStatus.objects.create(medicine=RequestMedicine.objects.get(name=request.data.get('name')),store_info=store ) # validate name
-      # convert data into json format
-      serializer = OrderStatusSerializer(OrderStatus.objects.filter(store_info=store),many=True)
-      return Response({"status": "success", "data": serializer.data}, status= 200)
+      user = User.objects.get(id=id)
+      detail = RequestMedicine.objects.filter(user=user)
+      serializer = RequestMedicineSerializer(detail,many=True)
+      return Response({"status": "success", "data": serializer.data}, status = 200)
     except:
-      return Response ({"status": "Already order placed"}, status=203)
-      
+      return Response({"status": "No cart"}, status = 400)
+
+
+class DeleteUserAddressDetail(GenericAPIView):
+  serializer_class = RequestMedicineSerializer
+  renderer_classes = [UserRenderer]
+  def post(self,request,id):
+    try:
+      user = User.objects.filter(id=id)
+      print(user)
+      cart = RequestMedicine.objects.all().delete()
+      serializer = RequestMedicineSerializer(cart,many=True)
+      return Response({"status": "Deleted successfully", "data": serializer.data}, status = 200)
+    except:
+      return Response({"status": "Delete"}, status = 400)
+
 
 
 class OrderAssignToDeliveryBoy(GenericAPIView):
@@ -204,7 +267,7 @@ class RadiusFind(GenericAPIView):
 
 
 
-  # class FoodOrderApporve(GenericAPIView):
+# class FoodOrderApporve(GenericAPIView):
 #   serializer_class = RequestMedicineSerializer
 #   renderer_classes = [UserRenderer]
 #   def post(self,request,id):

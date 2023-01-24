@@ -15,29 +15,31 @@ class AddProductCart(GenericAPIView):
       if not self.request.user.is_authenticated:
         return Response({'msg':'user not found'})
       user = User.objects.get(id=id)
-      product = Product.objects.get(id=request.data['product_id'])
-      quantity = int(request.data['quantity'])   
-      try:
-        cart=Cartitems.objects.get(user=user,product=product)
-        cart.quantity += quantity
-      except:
-        cart=Cartitems.objects.create(user=user,product=product,quantity=quantity,created_at=datetime.datetime.now)
-      cart.save()
-      serializer = AddCartSerializer(cart)
-      return Response({"status":"success", "data": serializer.data}, status = 200)
+      product = Product.objects.filter(id=request.data.get('product'))
+      quantity = int(request.data['quantity'])
+      cart_items = Cartitems.objects.filter(user=user)
+      if cart_items.exists():
+          cart_item = cart_items.first()
+      else:
+          cart_item = Cartitems.objects.create(user=user)
+      cart_item.product.add(*product)
+      return Response({"status": "Product Added"}, status = 200)
     except:
       return Response({"status":"Not Found"}, status = 400)
+
 
 
 class ViewCartProduct(GenericAPIView):
   serializer_class = ViewCartSerializer
   renderer_classes = [UserRenderer]
   def get(self, request,id):
-    user = User.objects.get(id=id)
-    cart = Cartitems.objects.filter(user=user)
-    serializer = ViewCartSerializer(cart,many=True)
-    return Response({"status": "success", "data": serializer.data}, status = 200)
-
+    try:
+      user = User.objects.get(id=id)
+      cart = Cartitems.objects.filter(user=user)
+      serializer = ViewCartSerializer(cart,many=True)
+      return Response({"status": "success", "data": serializer.data}, status = 200)
+    except:
+      return Response({"status": "User Not Found"}, status = 200)
 
 class DeleteCartItemById(GenericAPIView):
   serializer_class = DeleteCartSerializer
