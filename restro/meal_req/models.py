@@ -1,16 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from cart.models import Cartitems
 
 # Create your models here.
 class RequestMedicine(models.Model):
-    name = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='images/medicine')
+    cart = models.ManyToManyField(Cartitems,related_name='cart_id')
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
     phone_no = models.IntegerField()
-    address = models.TextField(max_length=500)
+    address = models.CharField(max_length=500)
     latitude = models.DecimalField(decimal_places=5, max_digits=7)
     longitude = models.DecimalField(decimal_places=5,max_digits=7)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)
 
 
@@ -37,7 +36,7 @@ status = (
 
 # found,not_found,partially_found
 class OrderStatus(models.Model):
-    medicine  = models.ForeignKey(RequestMedicine,on_delete=models.CASCADE)
+    cart  = models.ManyToManyField(RequestMedicine,related_name='cart_id')
     store_info = models.ForeignKey(StoreInfo,on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True)  
     status = models.CharField(max_length=100,choices=status,default="waiting_for_confirmation")
@@ -45,5 +44,5 @@ class OrderStatus(models.Model):
 
 class DeliveryBoy(models.Model):
     user =  models.ForeignKey(User,on_delete=models.CASCADE)
-    order = models.ForeignKey(RequestMedicine,on_delete=models.CASCADE)
+    order = models.ManyToManyField(RequestMedicine,related_name='order_id')
     date = models.DateTimeField(auto_now=True)

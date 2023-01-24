@@ -3,11 +3,20 @@ from meal_req.models import *
 from food.models import *
 
 
+
 class RequestMedicineSerializer(serializers.ModelSerializer):
+    cart = serializers.PrimaryKeyRelatedField(many=True, queryset=Cartitems.objects.all())
+
+    class Meta:
+        model = RequestMedicine
+        fields = ('user', 'phone_no', 'address', 'latitude', 'longitude', 'date', 'cart')
+
+
+class UpdateUserDetailSerializer(serializers.ModelSerializer):
   class Meta:
     model = RequestMedicine
-    fields = ['id','name', 'image', 'phone_no', 'address',
-    'latitude', 'longitude']
+    fields = ['phone_no','address','latitude','longitude']
+
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
